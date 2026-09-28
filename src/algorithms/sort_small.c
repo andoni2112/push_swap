@@ -1,91 +1,112 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sort_small.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: andpascu <andpascu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/28 18:55:00 by andpascu          #+#    #+#             */
+/*   Updated: 2026/09/28 19:18:16 by andpascu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "push_swap.h"
 
-void	sort_three(t_stack **a)
+static int	sort_three_case(t_stack **a, int top, int mid, int bot)
+{
+	if (top > mid && mid < bot && top < bot)
+	{
+		sa(*a);
+		return (1);
+	}
+	if (top > mid && mid > bot)
+	{
+		sa(*a);
+		rra(a);
+		return (2);
+	}
+	if (top > mid && mid < bot && top > bot)
+	{
+		ra(a);
+		return (1);
+	}
+	return (0);
+}
+
+static int	sort_three_last(t_stack **a, int top, int mid, int bot)
+{
+	if (top < mid && mid > bot && top < bot)
+	{
+		sa(*a);
+		ra(a);
+		return (2);
+	}
+	rra(a);
+	return (1);
+}
+
+int	sort_three(t_stack **a)
 {
 	int	top;
 	int	mid;
 	int	bot;
+	int	ops;
 
-	if (is_sorted(*a))
-		return ;
+	if (!a || !*a || is_sorted(*a))
+		return (0);
+	if (stack_size(*a) == 2)
+	{
+		sa(*a);
+		return (1);
+	}
 	top = (*a)->index;
 	mid = (*a)->next->index;
 	bot = (*a)->next->next->index;
-	if (top > mid && mid < bot && top < bot)
-		sa(*a);
-	else if (top > mid && mid > bot)
-	{
-		sa(*a);
-		rra(a);
-	}
-	else if (top > mid && mid < bot && top > bot)
-		ra(a);
-	else if (top < mid && mid > bot && top < bot)
-	{
-		sa(*a);
-		ra(a);
-	}
-	else if (top < mid && mid > bot && top > bot)
-		rra(a);
-
+	ops = sort_three_case(a, top, mid, bot);
+	if (ops)
+		return (ops);
+	return (sort_three_last(a, top, mid, bot));
 }
 
-int	get_min_pos(t_stack *a, int target_index)
-{
-	int	pos;
-	pos = 0;
-	while (a)
-	{
-		if (a->index == target_index)
-			return (pos);
-		pos++;
-		a = a->next;
-	}
-	return (0);
-
-}
-
-static void	push_min_to_b(t_stack **a, t_stack **b, int target_index)
+static int	push_index_to_b(t_stack **a, t_stack **b, int target)
 {
 	int	pos;
 	int	size;
+	int	ops;
 
-	pos = get_min_pos(*a, target_index);
+	pos = get_index_pos(*a, target);
 	size = stack_size(*a);
-	if (pos <= size / 2)
+	ops = 0;
+	while ((*a)->index != target)
 	{
-		while ((*a)->index != target_index)
+		if (pos <= size / 2)
 			ra(a);
-	}
-	else
-	{
-		while ((*a)->index != target_index)
+		else
 			rra(a);
+		ops++;
 	}
 	pb(a, b);
-
+	return (ops + 1);
 }
 
-void	sort_small(t_stack **a, t_stack **b)
+int	sort_small(t_stack **a, t_stack **b)
 {
 	int	size;
+	int	ops;
 
+	if (!a || !*a || is_sorted(*a))
+		return (0);
 	size = stack_size(*a);
-	if (size == 2)
-	{
-		if ((*a)->index > (*a)->next->index)
-			sa(*a);
-		return ;
-	}
-	if (size == 4)
-		push_min_to_b(a, b, 0);
-	else if (size == 5)
-	{
-		push_min_to_b(a, b, 0);
-		push_min_to_b(a, b, 1);
-	}
-	sort_three(a);
+	if (size <= 3)
+		return (sort_three(a));
+	ops = push_index_to_b(a, b, 0);
+	if (size == 5)
+		ops += push_index_to_b(a, b, 1);
+	ops += sort_three(a);
 	while (*b)
+	{
 		pa(a, b);
-
+		ops++;
+	}
+	return (ops);
 }

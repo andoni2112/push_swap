@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   check_errors.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: andpascu <andpascu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/28 18:55:00 by andpascu          #+#    #+#             */
+/*   Updated: 2026/09/28 19:23:08 by andpascu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "push_swap.h"
 
 int	is_number(char *str)
@@ -13,61 +25,67 @@ int	is_number(char *str)
 		return (0);
 	while (str[i])
 	{
-		if ((str[i] < '0') || (str[i] > '9'))
+		if (str[i] < '0' || str[i] > '9')
 			return (0);
 		i++;
 	}
 	return (1);
 }
 
+static long	read_digits(const char *str, int sign)
+{
+	long	result;
+	int		digit;
+
+	result = 0;
+	while (*str >= '0' && *str <= '9')
+	{
+		digit = *str - '0';
+		if (result > (LONG_MAX - digit) / 10)
+		{
+			if (sign < 0)
+				return (LONG_MIN);
+			return (LONG_MAX);
+		}
+		result = result * 10 + digit;
+		str++;
+	}
+	return (result * sign);
+}
+
 long	ft_atol(const char *str)
 {
-	long	res;
-	int		sign;
-	int		i;
+	int	sign;
 
-	res = 0;
 	sign = 1;
-	i = 0;
-	while (str[i] == ' ' || (str[i] >= '9' && str[i] <= 13))
-		i++;
-	if (str[i] == '+' || str[i] == '-')
+	if (*str == '+' || *str == '-')
 	{
-		if (str[i] == '-')
+		if (*str == '-')
 			sign = -1;
-		i++;
+		str++;
 	}
-	while (str[i] >= '0' && str[i] <= '9')
-	{
-		res = res * 10 + (str[i] - '0');
-		i++;
-	}
-	return (res * sign);
+	return (read_digits(str, sign));
 }
 
 int	is_within_int_limits(long num)
 {
-	if (num < INT_MIN || num > INT_MAX)
-		return (0);
-	return (1);
+	return (num >= INT_MIN && num <= INT_MAX);
 }
 
 int	has_duplicates(t_stack *stack)
 {
-	t_stack *current;
-	t_stack *runner;
+	t_stack	*runner;
 
-	current = stack;
-	while (current)
+	while (stack)
 	{
-		runner = current->next;
+		runner = stack->next;
 		while (runner)
 		{
-			if (current->value == runner->value)
+			if (stack->value == runner->value)
 				return (1);
 			runner = runner->next;
 		}
-		current = current->next;
+		stack = stack->next;
 	}
 	return (0);
 }

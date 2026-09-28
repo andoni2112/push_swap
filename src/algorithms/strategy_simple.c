@@ -1,65 +1,95 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   strategy_simple.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: andpascu <andpascu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/28 18:57:50 by andpascu          #+#    #+#             */
+/*   Updated: 2026/09/28 19:09:09 by andpascu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "push_swap.h"
 
-static int  find_min_pos(t_stack *a)
+static int	find_min_pos(t_stack *a)
 {
-    t_stack *tmp;
-    int     min_idx;
-    int     min_pos;
-    int     pos;
+	int	min_idx;
+	int	min_pos;
+	int	pos;
 
-    tmp = a;
-    min_idx = tmp->index;
-    min_pos = 0;
-    pos = 0;
-    while (tmp)
-    {
-        if (tmp->index < min_idx)
-        {
-            min_idx = tmp->index;
-            min_pos = pos;
-        }
-        pos++;
-        tmp = tmp->next;
-    }
-    return (min_pos);
-
+	min_idx = a->index;
+	min_pos = 0;
+	pos = 0;
+	while (a)
+	{
+		if (a->index < min_idx)
+		{
+			min_idx = a->index;
+			min_pos = pos;
+		}
+		pos++;
+		a = a->next;
+	}
+	return (min_pos);
 }
 
-static int  push_mins_to_b(t_stack **a, t_stack **b)
+static int	move_min_to_top(t_stack **a, int pos, int size)
 {
-    int     pos;
-    int     size;
-    int     ops;
+	int	ops;
 
-    ops = 0;
-    while (stack_size(*a) > 3 && !is_sorted(*a))
-    {
-        pos = find_min_pos(*a);
-        size = stack_size(*a);
-        if (pos <= size / 2)
-        {
-            while (pos-- > 0 && ++ops)
-                ra(a);
-        }
-        else
-        {
-            while (pos++ < size && ++ops)
-                rra(a);
-        }
-        pb(a, b);
-        ops++;
-    }
-    return (ops);
+	ops = 0;
+	if (pos <= size / 2)
+	{
+		while (pos-- > 0)
+		{
+			ra(a);
+			ops++;
+		}
+	}
+	else
+	{
+		while (pos++ < size)
+		{
+			rra(a);
+			ops++;
+		}
+	}
+	return (ops);
 }
-int    strategy_simple(t_stack **a, t_stack **b)
+
+static int	push_mins_to_b(t_stack **a, t_stack **b)
 {
-    int     ops;
+	int	pos;
+	int	size;
+	int	ops;
 
-    ops = push_mins_to_b(a, b);
-    if (!is_sorted(*a))
-        sort_three(a);
-    while (*b && ++ops)
-        pa(a, b);
-    return (ops);
+	ops = 0;
+	while (stack_size(*a) > 3 && !is_sorted(*a))
+	{
+		pos = find_min_pos(*a);
+		size = stack_size(*a);
+		ops += move_min_to_top(a, pos, size);
+		pb(a, b);
+		ops++;
+	}
+	return (ops);
+}
 
+int	strategy_simple(t_stack **a, t_stack **b)
+{
+	int	ops;
+
+	if (!a || !*a || is_sorted(*a))
+		return (0);
+	if (stack_size(*a) <= 5)
+		return (sort_small(a, b));
+	ops = push_mins_to_b(a, b);
+	ops += sort_three(a);
+	while (*b)
+	{
+		pa(a, b);
+		ops++;
+	}
+	return (ops);
 }

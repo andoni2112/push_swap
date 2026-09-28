@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: andpascu <andpascu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/28 18:55:00 by andpascu          #+#    #+#             */
+/*   Updated: 2026/09/28 19:16:38 by andpascu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "push_swap.h"
 
 static void	init_config(t_config *config)
@@ -13,9 +25,9 @@ static int	execute_strategy(t_stack **a, t_stack **b, t_config *config)
 {
 	if (config->flag_simple)
 		return (strategy_simple(a, b));
-	else if (config->flag_medium)
+	if (config->flag_medium)
 		return (strategy_medium(a, b));
-	else if (config->flag_complex)
+	if (config->flag_complex)
 		return (strategy_complex(a, b));
 	return (strategy_adaptive(a, b));
 }
@@ -28,15 +40,12 @@ int	main(int argc, char **argv)
 	double		disorder;
 	int			ops;
 
-	a = NULL;
-	b = NULL;
-	ops = 0;
-	init_config(&config);
 	if (argc < 2)
 		return (0);
+	a = NULL;
+	b = NULL;
+	init_config(&config);
 	parse_input(argc, argv, &a, &config);
-	if (!a)
-		return (0);
 	index_stack(a);
 	disorder = compute_disorder(a);
 	ops = execute_strategy(&a, &b, &config);
